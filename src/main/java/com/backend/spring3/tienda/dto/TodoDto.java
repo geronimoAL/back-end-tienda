@@ -2,6 +2,8 @@ package com.backend.spring3.tienda.dto;
 
 
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,3 +20,4 @@ public class TodoDto {
     private String description;
     private boolean completed;
 }
+
