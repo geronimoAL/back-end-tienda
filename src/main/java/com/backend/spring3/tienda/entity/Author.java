@@ -1,5 +1,7 @@
 package com.backend.spring3.tienda.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,21 +18,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "todos")
-public class Todo {
-    
-
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "author")
+public class Author {
+     @Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid",strategy = "uuid")
+    private String id;
 
     @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String description;
-    private boolean completed;
-    private String imagen;
-    private String cloudinaryId;
+    private String name;
 }

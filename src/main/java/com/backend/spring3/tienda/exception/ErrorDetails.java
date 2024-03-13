@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ErrorDetails {
     
-     private LocalDateTime timeStamp;
+    private LocalDateTime timeStamp;
     private String message;
     private String details;
 }

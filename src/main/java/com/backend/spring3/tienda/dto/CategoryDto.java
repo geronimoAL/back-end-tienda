@@ -2,7 +2,6 @@ package com.backend.spring3.tienda.dto;
 
 
 
-import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,11 +12,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TodoDto {
+public class CategoryDto {
     
-    private Long id;
-    private String title;
-    private String description;
-    private boolean completed;
+    private String id;
+    private String name;
 }
-
