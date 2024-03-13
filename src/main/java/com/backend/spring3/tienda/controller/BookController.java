@@ -83,7 +83,6 @@ public class BookController {
     @GetMapping
     public ResponseEntity<List<BookDto>> getAllTodos() {
         List<BookDto> todos = bookService.getAllTodos();
-        // return new ResponseEntity<>(todos, HttpStatus.OK);
         return ResponseEntity.ok(todos);
     }
 
