@@ -74,7 +74,7 @@ public class BookController {
     // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/{id}")
     public ResponseEntity<BookDto> getTodo(@PathVariable("id") String todoId) {
-        BookDto libroDto = bookService.getTodo(todoId);
+        BookDto libroDto = bookService.getBook(todoId);
         return new ResponseEntity<>(libroDto, HttpStatus.OK);
     }
 
@@ -82,7 +82,7 @@ public class BookController {
     // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping
     public ResponseEntity<List<BookDto>> getAllTodos() {
-        List<BookDto> todos = bookService.getAllTodos();
+        List<BookDto> todos = bookService.getAllBooks();
         return ResponseEntity.ok(todos);
     }
 
@@ -125,6 +125,12 @@ public class BookController {
     public ResponseEntity<List<BookDto>> getBooksXNameBookOrEditorial(@PathVariable("id") String categoryId) {
         List<BookDto> books = bookService.searchBookXNameOrEditorial(categoryId);
         return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/limit")
+    public ResponseEntity<List<BookDto>> getAllBooksLimit() {
+        List<BookDto> todos = bookService.getBookLimit();
+        return ResponseEntity.ok(todos);
     }
 
 }

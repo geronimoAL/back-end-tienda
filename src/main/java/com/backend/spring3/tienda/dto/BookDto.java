@@ -26,7 +26,8 @@ public class BookDto {
     private String publicationDate;
     private String description;
     private Integer amount;
-    private String price;
+    private Integer inStock;
+    private Integer price;
     private String imageUrl;
     private Author author;
     private Set<Category> categories;

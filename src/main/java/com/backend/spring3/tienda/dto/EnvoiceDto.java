@@ -1,20 +1,22 @@
 package com.backend.spring3.tienda.dto;
 
-
-
+import java.time.LocalDate;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
+
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDto {
-    
-    private String id;
-    private String name;
-    private String imageUrl;
+public class EnvoiceDto {
+
+    private Integer number;
+
+    private LocalDate publicationDate;
+
+    private Integer total;
 }

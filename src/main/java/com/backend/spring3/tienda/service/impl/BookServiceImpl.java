@@ -86,21 +86,21 @@ public class BookServiceImpl implements BookService {
 
                 Map result = cloudinaryService.upload(file);
 
-                Book libro = new Book();
-                libro.setTitle(title);
-                libro.setEditorial(editorial);
-                libro.setDescription(description);
-                libro.setPrice(price);
-                libro.setAmount(Integer.parseInt(amount));
-                libro.setImageUrl((String) result.get("url"));
-                libro.setCloudinaryId((String) result.get("public_id"));
+                Book book = new Book();
+                book.setTitle(title);
+                book.setEditorial(editorial);
+                book.setDescription(description);
+                book.setPrice(price);
+                book.setAmount(1);
+                book.setInStock(Integer.parseInt(amount));
+                book.setImageUrl((String) result.get("url"));
+                book.setCloudinaryId((String) result.get("public_id"));
                 Author author = authorRepository.findById(authorId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id:"));
-                ;
-                libro.setAuthor(author);
-                libro.setCategories(categoriesNombres);
-                libro.setPublicationDate(fecha);
-                Book savedTodo = bookRepository.save(libro);
+                book.setAuthor(author);
+                book.setCategories(categoriesNombres);
+                book.setPublicationDate(fecha);
+                Book savedTodo = bookRepository.save(book);
 
                 BookDto savedTodoDto = modelMapper.map(savedTodo, BookDto.class);
 
@@ -108,7 +108,7 @@ public class BookServiceImpl implements BookService {
         }
 
         @Override
-        public BookDto getTodo(String id) {
+        public BookDto getBook(String id) {
                 Book libro = bookRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException("Todo not found with id:" + id));
 
@@ -116,7 +116,7 @@ public class BookServiceImpl implements BookService {
         }
 
         @Override
-        public List<BookDto> getAllTodos() {
+        public List<BookDto> getAllBooks() {
                 List<Book> todos = bookRepository.findAll();
 
                 return todos.stream().map((libro) -> modelMapper.map(libro, BookDto.class))
@@ -131,6 +131,8 @@ public class BookServiceImpl implements BookService {
                                                 "No se encontró el libro con id : " + id));
                 todo.setTitle(libroDto.getTitle());
                 todo.setDescription(libroDto.getDescription());
+                // book.setAmount(1);
+                // book.setInStock(Integer.parseInt(amount));
                 Map delete = cloudinaryService.delete(todo.getCloudinaryId());
                 logger.info("El resultado de borrar la imagen me da : " + delete);
                 Map upload = cloudinaryService.upload(file);
@@ -163,6 +165,16 @@ public class BookServiceImpl implements BookService {
                 List<Book> books = bookRepository.searchBookXNameOrEditorial(name);
                 return books.stream().map((book) -> modelMapper.map(book, BookDto.class))
                                 .collect(Collectors.toList());
+        }
+
+
+        @Override
+        public List<BookDto> getBookLimit() {
+                return bookRepository.findAll().stream()
+                .limit(3) 
+                .map(book -> modelMapper.map(book, BookDto.class))
+                .collect(Collectors.toList());
+    
         }
         
 

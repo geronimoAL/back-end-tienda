@@ -11,9 +11,9 @@ public interface BookService {
     
     BookDto addBook(String title,String editorial, String description,String date,String amount, String price,String authorId, String categorias,MultipartFile file)throws IOException;
 
-    BookDto getTodo(String id);
+    BookDto getBook(String id);
 
-    List<BookDto> getAllTodos();
+    List<BookDto> getAllBooks();
 
     BookDto updateTodo(BookDto libroDto, Long id,MultipartFile file)throws IOException;
 
@@ -23,5 +23,5 @@ public interface BookService {
 
     List<BookDto> searchBookXNameOrEditorial(String name);
 
-
+    List<BookDto> getBookLimit();
 }
