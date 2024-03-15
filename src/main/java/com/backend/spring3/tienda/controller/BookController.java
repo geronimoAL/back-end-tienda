@@ -91,26 +91,30 @@ public class BookController {
     @PutMapping("{id}")
     public ResponseEntity<BookDto> updateTodo(
             @RequestParam("title") String title,
+            @RequestParam("editorial") String editorial,
             @RequestParam("description") String description,
-            @RequestParam("file") MultipartFile file,
-            @PathVariable("id") Long todoId) throws IOException {
+            @RequestParam("fecha") String date,
+            @RequestParam("unidades") String amount,
+            @RequestParam("precio") String price,
+            @RequestParam("author") String authorId,
+            @RequestParam("categorias") String categories,
+            @RequestParam(name = "file",required = false) MultipartFile file,
+            @PathVariable("id") String bookId) throws IOException {
 
-        BookDto libroDto = new BookDto();
-        libroDto.setTitle(title);
-        libroDto.setDescription(description);
-        // libroDto.setFecha(LocalDate.now());
+        logger.info("Entrando a updateBookController ");
 
-        BookDto updatedTodo = bookService.updateTodo(libroDto, todoId, file);
-        return ResponseEntity.ok(updatedTodo);
+        BookDto updatedBookDto = bookService.updateTodo(bookId, file,title,editorial, description,date,amount, price,authorId,categories);
+      
+        return ResponseEntity.ok(updatedBookDto);
 
     }
 
     // Build Delete Todo REST API
     // @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable("id") Long bookId) throws IOException {
-
-        bookService.deleteTodo(bookId);
+    public ResponseEntity<String> deleteBook(@PathVariable("id") String bookId) throws IOException {
+        logger.info("Entrando a deleteBookController ");
+        bookService.deleteBook(bookId);
         return ResponseEntity.ok("Todo deleted successfully!.");
 
     }
