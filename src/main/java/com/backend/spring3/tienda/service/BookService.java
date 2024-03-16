@@ -15,7 +15,7 @@ public interface BookService {
 
     List<BookDto> getAllBooks();
 
-    BookDto updateTodo(String id,MultipartFile file,String title,String editorial, String description,String date,String amount, String price,String authorId, String categorias)throws IOException;
+    BookDto updateBook(String id,MultipartFile file,String title,String editorial, String description,String date,String amount, String price,String authorId, String categorias)throws IOException;
 
     void deleteBook(String id)throws IOException;
 

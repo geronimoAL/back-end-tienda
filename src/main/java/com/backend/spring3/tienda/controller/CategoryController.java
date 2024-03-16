@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,23 +31,25 @@ public class CategoryController {
 
     private CategoryService categoryService;
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/save")
-    public ResponseEntity<CategoryDto> addTodo(@RequestParam("name") String name,@RequestParam("file")MultipartFile file) throws IOException{
+    public ResponseEntity<CategoryDto> addCategory(@RequestParam("name") String name,@RequestParam("file")MultipartFile file) throws IOException{
 
         CategoryDto savedCategory = categoryService.addCategory(name, file);
 
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/all")
-    public ResponseEntity<List<CategoryDto>> getAllTodos() {
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
         List<CategoryDto> categories = categoryService.getAllCategories();
         return ResponseEntity.ok(categories);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("{id}")
-    public ResponseEntity<CategoryDto> getTodo(@PathVariable("id") Long todoId) {
+    public ResponseEntity<CategoryDto> getCategory(@PathVariable("id") Long todoId) {
         CategoryDto categoryDto = categoryService.getCategory(todoId);
         return new ResponseEntity<>(categoryDto, HttpStatus.OK);
     }

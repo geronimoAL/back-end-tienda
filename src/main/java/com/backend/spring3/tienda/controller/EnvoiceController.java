@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,9 +48,9 @@ public class EnvoiceController {
     private EnvoiceDetailServiceImpl envoiceDetailServiceImpl;
 
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PostMapping("/save")
-    public ResponseEntity<EnvoiceDto> addEnvoice( @RequestParam("cart") String cart,
-    @RequestParam("total") String total) throws JsonMappingException, JsonProcessingException{
+    public ResponseEntity<EnvoiceDto> addEnvoice( @RequestParam("cart") String cart, @RequestParam("total") String total) throws JsonMappingException, JsonProcessingException{
 
     logger.info("Entrando en EnvoiceContoller ");
 

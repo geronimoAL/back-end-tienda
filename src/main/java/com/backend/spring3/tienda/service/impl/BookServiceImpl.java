@@ -80,7 +80,7 @@ public class BookServiceImpl implements BookService {
                 Set<Category> categoriesNombres = Arrays.stream(categoriasArray)
                                 .map(category -> categoryRepository.findById(category.getId())
                                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Category not found with id:" + category.getId())))
+                                                                "Categoria no encontrado con id:" + category.getId())))
                                 .collect(Collectors.toSet());
 
                 DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -112,7 +112,7 @@ public class BookServiceImpl implements BookService {
         @Override
         public BookDto getBook(String id) {
                 Book libro = bookRepository.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Todo not found with id:" + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con id :" + id));
 
                 return modelMapper.map(libro, BookDto.class);
         }
@@ -126,7 +126,7 @@ public class BookServiceImpl implements BookService {
         }
 
         @Override
-        public BookDto updateTodo(String id, MultipartFile file, String title, String editorial, String description,
+        public BookDto updateBook(String id, MultipartFile file, String title, String editorial, String description,
                         String date, String amount, String price, String authorId, String categories)
                         throws IOException {
 
@@ -154,14 +154,14 @@ public class BookServiceImpl implements BookService {
                 }
 
                 Author author = authorRepository.findById(authorId)
-                                .orElseThrow(() -> new ResourceNotFoundException("Author not found with id:"));
+                                .orElseThrow(() -> new ResourceNotFoundException("Author no encontrado con id:"));
                 book.setAuthor(author);
                 logger.info("en casi file");
                 if (file != null) {
-                        actualizarImagenLibro(book, file);
+                        updateImageBook(book, file);
                 }
 
-                Set<Category> categoriesNombres = establecerCategorias(categories);
+                Set<Category> categoriesNombres = establishCategories(categories);
 
                 book.setCategories(categoriesNombres);
 
@@ -173,7 +173,7 @@ public class BookServiceImpl implements BookService {
         @Override
         public void deleteBook(String id) throws IOException {
                 Book bookSearch = bookRepository.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Todo not found with id : " + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con  : " + id));
                 logger.info("Entrando a delete book service impl ");
                 Map delete = cloudinaryService.delete(bookSearch.getCloudinaryId());
                 logger.info("El resultado de borrar el libro me da : " + delete);
@@ -203,7 +203,7 @@ public class BookServiceImpl implements BookService {
 
         }
 
-        private void actualizarImagenLibro(Book book, MultipartFile file) throws IOException {
+        private void updateImageBook(Book book, MultipartFile file) throws IOException {
                 Map imageDelete = cloudinaryService.delete(book.getCloudinaryId());
                 logger.info("El resultado de borrar la imagen me da : " + imageDelete);
                 Map imageUpload = cloudinaryService.upload(file);
@@ -212,7 +212,7 @@ public class BookServiceImpl implements BookService {
                 book.setCloudinaryId((String) imageUpload.get("public_id"));
         }
 
-        private Set<Category> establecerCategorias(String categorias)
+        private Set<Category> establishCategories(String categorias)
                         throws JsonMappingException, JsonProcessingException {
 
                 CategoryDto[] categoriasArray = objectMapper.readValue(categorias, CategoryDto[].class);

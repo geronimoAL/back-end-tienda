@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,9 +42,7 @@ public class BookController {
     private BookService bookService;
 
 
-    // Build Add Todo REST API
-
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PostMapping("/save")
     public ResponseEntity<BookDto> addTodo(
             @RequestParam("title") String title,
@@ -70,24 +68,23 @@ public class BookController {
         return new ResponseEntity<>(savedTodo ,HttpStatus.CREATED);
     }
 
-    // Build Get Todo REST API
-    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/{id}")
-    public ResponseEntity<BookDto> getTodo(@PathVariable("id") String todoId) {
+    public ResponseEntity<BookDto> getBook(@PathVariable("id") String todoId) {
         BookDto libroDto = bookService.getBook(todoId);
         return new ResponseEntity<>(libroDto, HttpStatus.OK);
     }
 
-    // Build Get All Todos REST API
-    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping
-    public ResponseEntity<List<BookDto>> getAllTodos() {
+    public ResponseEntity<List<BookDto>> getAllBooks() {
         List<BookDto> todos = bookService.getAllBooks();
         return ResponseEntity.ok(todos);
     }
 
-    // Build Update Todo REST API
-    // @PreAuthorize("hasRole('ADMIN')")
+    
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PutMapping("{id}")
     public ResponseEntity<BookDto> updateTodo(
             @RequestParam("title") String title,
@@ -103,14 +100,14 @@ public class BookController {
 
         logger.info("Entrando a updateBookController ");
 
-        BookDto updatedBookDto = bookService.updateTodo(bookId, file,title,editorial, description,date,amount, price,authorId,categories);
+        BookDto updatedBookDto = bookService.updateBook(bookId, file,title,editorial, description,date,amount, price,authorId,categories);
       
         return ResponseEntity.ok(updatedBookDto);
 
     }
 
-    // Build Delete Todo REST API
-    // @PreAuthorize("hasRole('ADMIN')")
+   
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteBook(@PathVariable("id") String bookId) throws IOException {
         logger.info("Entrando a deleteBookController ");
@@ -119,18 +116,21 @@ public class BookController {
 
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/search/categoryBook/{id}")
     public ResponseEntity<List<BookDto>> getBooksXCategory(@PathVariable("id") String categoryId) {
         List<BookDto> books = bookService.searchBookXCategoryId(categoryId);
         return ResponseEntity.ok(books);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/search/name/{id}")
     public ResponseEntity<List<BookDto>> getBooksXNameBookOrEditorial(@PathVariable("id") String categoryId) {
         List<BookDto> books = bookService.searchBookXNameOrEditorial(categoryId);
         return ResponseEntity.ok(books);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/limit")
     public ResponseEntity<List<BookDto>> getAllBooksLimit() {
         List<BookDto> todos = bookService.getBookLimit();
