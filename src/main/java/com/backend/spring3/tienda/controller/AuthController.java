@@ -1,4 +1,7 @@
 package com.backend.spring3.tienda.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +11,9 @@ import com.backend.spring3.tienda.dto.JwtAuthResponse;
 import com.backend.spring3.tienda.dto.LoginDto;
 import com.backend.spring3.tienda.dto.RegisterDto;
 import com.backend.spring3.tienda.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @CrossOrigin("*")
 @AllArgsConstructor
 @RestController
@@ -17,6 +22,9 @@ public class AuthController {
     
 
     private AuthService authService;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthorController.class);
+
 
     // Build Register REST API
     @PostMapping("/register")
@@ -29,7 +37,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDto loginDto){
         JwtAuthResponse jwtAuthResponse = authService.login(loginDto);
-
+        logger.info("token "+jwtAuthResponse.getAccessToken());
         return new ResponseEntity<>(jwtAuthResponse, HttpStatus.OK);
     }
 }

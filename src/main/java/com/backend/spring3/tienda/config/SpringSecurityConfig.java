@@ -42,13 +42,15 @@ public class SpringSecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
   http.csrf().disable()
                 .authorizeHttpRequests((authorize) -> {
-//                    authorize.requestMatchers(HttpMethod.POST, "/api/**").hasRole("ADMIN");
-//                    authorize.requestMatchers(HttpMethod.PUT, "/api/**").hasRole("ADMIN");
-//                    authorize.requestMatchers(HttpMethod.DELETE, "/api/**").hasRole("ADMIN");
-//                    authorize.requestMatchers(HttpMethod.GET, "/api/**").hasAnyRole("ADMIN", "USER");
-//                    authorize.requestMatchers(HttpMethod.PATCH, "/api/**").hasAnyRole("ADMIN", "USER");
-//                    authorize.requestMatchers(HttpMethod.GET, "/api/**").permitAll();
+                    authorize.requestMatchers("/").permitAll();
                     authorize.requestMatchers("/api/auth/**").permitAll();
+                    authorize.requestMatchers("/api/book/limit").permitAll();
+                    authorize.requestMatchers("/api/book/all").permitAll();
+                    authorize.requestMatchers("/api/book/{id}").permitAll();
+                    authorize.requestMatchers("/api/category/all").permitAll();
+                    authorize.requestMatchers("/api/category/{id}").permitAll();
+                    authorize.requestMatchers("/api/author/all").permitAll();
+                    authorize.requestMatchers("/api/author/{id}").permitAll();
                     authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     authorize.anyRequest().authenticated();
                 }).httpBasic(Customizer.withDefaults());

@@ -24,15 +24,16 @@ import lombok.AllArgsConstructor;
 public class AuthorController {
  
    private AuthorService authorService;
+
     
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/all")
     public ResponseEntity<List<AuthorDto>> getAllAuthor() {
         List<AuthorDto> authors = authorService.getAuthors();
         return ResponseEntity.ok(authors);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("{id}")
     public ResponseEntity<AuthorDto> getAuthor(@PathVariable("id") Long authorId) {
         AuthorDto authorDto = authorService.getAuthor(authorId);

@@ -40,14 +40,14 @@ public class CategoryController {
         return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/all")
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
         List<CategoryDto> categories = categoryService.getAllCategories();
         return ResponseEntity.ok(categories);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("{id}")
     public ResponseEntity<CategoryDto> getCategory(@PathVariable("id") Long todoId) {
         CategoryDto categoryDto = categoryService.getCategory(todoId);

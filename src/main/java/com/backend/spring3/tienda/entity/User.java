@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 @Setter
@@ -31,8 +32,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    @Column(nullable = false, unique = true)
-    private String username;
+    @Column(nullable = false)
+    private LocalDate dateOfAdmission;
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)

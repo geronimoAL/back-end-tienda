@@ -1,9 +1,12 @@
 package com.backend.spring3.tienda.service.impl;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +34,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AuthServiceImpl implements AuthService{
     
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
      private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
@@ -38,19 +42,20 @@ public class AuthServiceImpl implements AuthService{
     private JwtTokenProvider jwtTokenProvider;
     @Override
     public String register(RegisterDto registerDto) {
-       // check username is already exists in database
-        if(userRepository.existsByUsername(registerDto.getUsername())){
-            throw new TodoAPIException(HttpStatus.BAD_REQUEST, "Username already exists!");
+        
+        logger.info("Entrando a registro controller");
+
+        if(userRepository.existsByName(registerDto.getName())){
+            throw new TodoAPIException(HttpStatus.BAD_REQUEST, "El nombre ya existe en la Base de datos !");
         }
 
-        // check email is already exists in database
         if(userRepository.existsByEmail(registerDto.getEmail())){
-            throw new TodoAPIException(HttpStatus.BAD_REQUEST, "Email is already exists!.");
+            throw new TodoAPIException(HttpStatus.BAD_REQUEST, "Email ya existe en la base de datos!");
         }
 
         User user = new User();
         user.setName(registerDto.getName());
-        user.setUsername(registerDto.getUsername());
+        user.setDateOfAdmission(LocalDate.now());
         user.setEmail(registerDto.getEmail());
         user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
@@ -62,12 +67,14 @@ public class AuthServiceImpl implements AuthService{
 
         userRepository.save(user);
 
-        return "User Registered Successfully!.";
+        return "Usuario Registrado con éxito!.";
     }
     @Override
     public JwtAuthResponse login(LoginDto loginDto) {
+
+       logger.info("entrando a login");
        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginDto.getUsernameOrEmail(),
+                loginDto.getEmail(),
                 loginDto.getPassword()
         ));
 
@@ -75,7 +82,7 @@ public class AuthServiceImpl implements AuthService{
 
         String token = jwtTokenProvider.generateToken(authentication);
 
-        Optional<User>userOptional=userRepository.findByUsernameOrEmail(loginDto.getUsernameOrEmail(),loginDto.getUsernameOrEmail());
+        Optional<User>userOptional=userRepository.findByEmail(loginDto.getEmail());
 
         String role=null;
         String name=null;
