@@ -9,25 +9,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
-
 // import javax.imageio.ImageIO;
-
-import org.springframework.http.HttpStatus;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.Arrays;
 import com.backend.spring3.tienda.dto.CategoryDto;
 import com.backend.spring3.tienda.dto.BookDto;
 import com.backend.spring3.tienda.entity.Author;
 import com.backend.spring3.tienda.entity.Category;
+import com.backend.spring3.tienda.entity.User;
 import com.backend.spring3.tienda.entity.Book;
 import com.backend.spring3.tienda.exception.ResourceNotFoundException;
 import com.backend.spring3.tienda.repository.AuthorRepository;
 import com.backend.spring3.tienda.repository.CategoryRepository;
+import com.backend.spring3.tienda.repository.UserRepository;
 import com.backend.spring3.tienda.repository.BookRepository;
 import com.backend.spring3.tienda.service.CloudinaryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -59,14 +55,16 @@ public class BookServiceImpl implements BookService {
 
         private CloudinaryService cloudinaryService;
 
+        private UserRepository userRepository;
+
         @Transactional
         @Override
-        public BookDto addBook(String title, String editorial, String description,
-                        String date, String amount, String price, String authorId, String categorias,
-                        MultipartFile file)
-                        throws IOException {
+        public BookDto addBook(String idUser,String title, String editorial, String description,String date, String amount, String price, String authorId, String categorias,MultipartFile file)throws IOException {
 
                 logger.info("Entrando en bookServiceImpl");
+
+                User user=userRepository.findByEmail(idUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con "));
 
                 // Pasar el json de categorias a un set de la entidad categoria
                 CategoryDto[] categoriasArray = objectMapper.readValue(categorias, CategoryDto[].class);
@@ -102,6 +100,7 @@ public class BookServiceImpl implements BookService {
                 book.setAuthor(author);
                 book.setCategories(categoriesNombres);
                 book.setPublicationDate(fecha);
+                book.setUser(user);
                 Book savedTodo = bookRepository.save(book);
 
                 BookDto savedTodoDto = modelMapper.map(savedTodo, BookDto.class);
@@ -136,19 +135,21 @@ public class BookServiceImpl implements BookService {
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "No se encontró el libro con id : " + id));
 
-                logger.info("con el book "+book.getId());
+                logger.info("con el book "+title);
 
-                book.setTitle(book.getTitle() != title ? title : book.getTitle());
+                book.setTitle(  title.equals("") ?  book.getTitle():title);
 
-                book.setDescription(book.getDescription() != description ? title : book.getDescription());
+                book.setDescription( description.equals("") ? book.getDescription():description);
+
+                book.setEditorial( editorial.equals("") ? book.getEditorial(): editorial);
 
                 book.setInStock(amount.equals("") ? book.getInStock() : Integer.parseInt(amount));
 
                 book.setPrice(price.equals("") ? book.getPrice() : price);
 
-                logger.info("llegando a book date");
-                if (date == "") {
-                        logger.info("Entrando a vacio");
+
+                if (date.equals("")) {
+                        logger.info("Entrando a date");
                         LocalDate fecha = transformToDate(date);
                         book.setPublicationDate(fecha);
                 }
@@ -231,6 +232,13 @@ public class BookServiceImpl implements BookService {
                 DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate fecha = LocalDate.parse(date, formato);
                 return fecha;
+        }
+
+        @Override
+        public List<BookDto> getBookIdUser(String idUser) {
+                return bookRepository.booksXIdUser(idUser).stream()
+                .map(book -> modelMapper.map(book, BookDto.class))
+                .collect(Collectors.toList());
         }
 
 }

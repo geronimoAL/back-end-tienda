@@ -45,6 +45,7 @@ public class BookController {
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PostMapping("/save")
     public ResponseEntity<BookDto> addTodo(
+            @RequestParam("emailUser") String emailUser,
             @RequestParam("title") String title,
             @RequestParam("editorial") String editorial,
             @RequestParam("description") String description,
@@ -62,7 +63,7 @@ public class BookController {
         
         logger.info("Entrando en libroContoller");
 
-        BookDto savedTodo = bookService.addBook(title,editorial,description,date,amount,price,authorId,categories,file);
+        BookDto savedTodo = bookService.addBook(emailUser,title,editorial,description,date,amount,price,authorId,categories,file);
 
 
         return new ResponseEntity<>(savedTodo ,HttpStatus.CREATED);
@@ -79,8 +80,15 @@ public class BookController {
     // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/all")
     public ResponseEntity<List<BookDto>> getAllBooks() {
-        List<BookDto> todos = bookService.getAllBooks();
-        return ResponseEntity.ok(todos);
+        List<BookDto> books = bookService.getAllBooks();
+        return ResponseEntity.ok(books);
+    }
+
+    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<BookDto>> getBooksIdUser(@PathVariable("id") String id ) {
+        List<BookDto> books = bookService.getBookIdUser(id);
+        return ResponseEntity.ok(books);
     }
 
     
@@ -112,7 +120,7 @@ public class BookController {
     public ResponseEntity<String> deleteBook(@PathVariable("id") String bookId) throws IOException {
         logger.info("Entrando a deleteBookController ");
         bookService.deleteBook(bookId);
-        return ResponseEntity.ok("Todo deleted successfully!.");
+        return ResponseEntity.ok("Libro eliminado con éxito!.");
 
     }
 
@@ -132,8 +140,8 @@ public class BookController {
 
     @GetMapping("/limit")
     public ResponseEntity<List<BookDto>> getAllBooksLimit() {
-        List<BookDto> todos = bookService.getBookLimit();
-        return ResponseEntity.ok(todos);
+        List<BookDto> books = bookService.getBookLimit();
+        return ResponseEntity.ok(books);
     }
 
 }

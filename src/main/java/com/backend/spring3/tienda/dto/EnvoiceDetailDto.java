@@ -1,24 +1,29 @@
 package com.backend.spring3.tienda.dto;
 
-import java.time.LocalDate;
+
+
+import com.backend.spring3.tienda.entity.Book;
+import com.backend.spring3.tienda.entity.Envoice;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EnvoiceDto {
+public class EnvoiceDetailDto {
 
-    private String id;
+    private String name;
 
-    private Integer number;
+    private Integer price;
 
-    private LocalDate publicationDate;
+    private Integer amount;
 
     private Integer total;
+
+    
 }

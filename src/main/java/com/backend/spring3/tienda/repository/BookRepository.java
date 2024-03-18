@@ -18,6 +18,9 @@ public interface BookRepository extends JpaRepository<Book, String>{
     @Query("SELECT DISTINCT F FROM Book F JOIN F.categories C WHERE C.id = :category")
     public List<Book> searchBookXCategoryID(@Param("category") String nameCategory);
 
+    @Query("SELECT F FROM Book F JOIN F.user C WHERE C.id = :id")
+    public List<Book> booksXIdUser(@Param("id") String idUser);
+
 
 
 }

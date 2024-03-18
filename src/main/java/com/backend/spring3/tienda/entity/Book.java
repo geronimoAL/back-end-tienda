@@ -17,6 +17,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -67,7 +68,9 @@ public class Book {
     @ManyToOne()
     private Author author;
 
- 
+    @ManyToOne()
+    private User user;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
       name = "libro_categoria",

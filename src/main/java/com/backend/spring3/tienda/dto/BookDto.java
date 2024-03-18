@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.backend.spring3.tienda.entity.Author;
 import com.backend.spring3.tienda.entity.Category;
+import com.backend.spring3.tienda.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,5 +32,6 @@ public class BookDto {
     private String imageUrl;
     private Author author;
     private Set<Category> categories;
+    private User user;
 }
 
