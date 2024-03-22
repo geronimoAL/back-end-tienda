@@ -59,48 +59,37 @@ public class BookServiceImpl implements BookService {
 
         @Transactional
         @Override
-        public BookDto addBook(String idUser,String title, String editorial, String description,String date, String amount, String price, String authorId, String categorias,MultipartFile file)throws IOException {
+        public BookDto addBook(String idUser,String title, String editorial, String description,String date, String amount, String price, String authorId, String categories,MultipartFile file)throws IOException {
 
                 logger.info("Entrando en bookServiceImpl");
 
                 User user=userRepository.findByEmail(idUser)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con "));
 
-                // Pasar el json de categorias a un set de la entidad categoria
-                CategoryDto[] categoriasArray = objectMapper.readValue(categorias, CategoryDto[].class);
+                Set<Category> categoriesNombres = establishCategories(categories);
 
-                // Tambien podria obtener un array te category asi con el id y el nombre
-                // Set<Category> categoriasNombres = Arrays.stream(categoriasArray)
-                // .map(category -> new Category(category.getId().toString(),
-                // category.getName().toString()))
-                // .collect(Collectors.toSet());
-
-                Set<Category> categoriesNombres = Arrays.stream(categoriasArray)
-                                .map(category -> categoryRepository.findById(category.getId())
-                                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Categoria no encontrado con id:" + category.getId())))
-                                .collect(Collectors.toSet());
-
-                DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                LocalDate fecha = LocalDate.parse(date, formato);
+                LocalDate fecha = transformToDate(date);
 
                 Map result = cloudinaryService.upload(file);
 
-                Book book = new Book();
-                book.setTitle(title);
-                book.setEditorial(editorial);
-                book.setDescription(description);
-                book.setPrice(price);
-                book.setAmount(1);
-                book.setInStock(Integer.parseInt(amount));
-                book.setImageUrl((String) result.get("url"));
-                book.setCloudinaryId((String) result.get("public_id"));
                 Author author = authorRepository.findById(authorId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id:"));
-                book.setAuthor(author);
-                book.setCategories(categoriesNombres);
-                book.setPublicationDate(fecha);
-                book.setUser(user);
+
+                Book book = Book.builder()
+                .title(title)
+                .editorial(editorial)
+                .description(description)
+                .price(price)
+                .amount(1)
+                .inStock(Integer.parseInt(amount))
+                .imageUrl((String) result.get("url"))
+                .cloudinaryId((String) result.get("public_id"))
+                .author(author)
+                .categories(categoriesNombres)
+                .publicationDate(fecha)
+                .user(user)
+                .build();
+               
                 Book savedTodo = bookRepository.save(book);
 
                 BookDto savedTodoDto = modelMapper.map(savedTodo, BookDto.class);
@@ -241,6 +230,12 @@ public class BookServiceImpl implements BookService {
                         throws JsonMappingException, JsonProcessingException {
 
                 CategoryDto[] categoriasArray = objectMapper.readValue(categorias, CategoryDto[].class);
+
+                     // Tambien podria obtener un array te category asi con el id y el nombre
+                // Set<Category> categoriasNombres = Arrays.stream(categoriasArray)
+                // .map(category -> new Category(category.getId().toString(),
+                // category.getName().toString()))
+                // .collect(Collectors.toSet());
 
                 Set<Category> categoriesNombres = Arrays.stream(categoriasArray)
                                 .map(category -> categoryRepository.findById(category.getId())

@@ -55,10 +55,12 @@ public class CategoryServiceImpl implements CategoryService{
 
           Map result = cloudinaryService.upload(file);
 
-          Category category=new Category();
-          category.setName(name);
-          category.setImageUrl((String) result.get("url"));
-          category.setCloudinaryId((String) result.get("public_id"));
+          Category category=Category.builder()
+          .name(name)
+          .imageUrl((String) result.get("url"))
+          .cloudinaryId((String) result.get("public_id"))
+          .build();
+
 
           Category savedCategory = categoryRepository.save(category);
   
