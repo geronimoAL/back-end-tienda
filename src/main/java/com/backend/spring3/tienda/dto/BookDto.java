@@ -30,8 +30,8 @@ public class BookDto {
     private Integer inStock;
     private Integer price;
     private String imageUrl;
-    private Author author;
+    private String authorName;
     private Set<Category> categories;
-    private User user;
+    private String userId;
 }
 

@@ -46,6 +46,8 @@ public class SpringSecurityConfig {
                     authorize.requestMatchers("/api/auth/**").permitAll();
                     authorize.requestMatchers("/api/book/limit").permitAll();
                     authorize.requestMatchers("/api/book/all").permitAll();
+                    authorize.requestMatchers("/api/book/search/categoryBook/{id}").permitAll();
+                    authorize.requestMatchers("/api/book/search/name/{id}").permitAll();
                     authorize.requestMatchers("/api/book/{id}").permitAll();
                     authorize.requestMatchers("/api/category/all").permitAll();
                     authorize.requestMatchers("/api/category/{id}").permitAll();

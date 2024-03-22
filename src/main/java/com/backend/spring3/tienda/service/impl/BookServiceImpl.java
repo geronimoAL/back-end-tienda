@@ -118,10 +118,18 @@ public class BookServiceImpl implements BookService {
 
         @Override
         public List<BookDto> getAllBooks() {
-                List<Book> todos = bookRepository.findAll();
+                List<Book> books = bookRepository.findAll();
+                logger.info("Get all me da "+books);
+                return books.stream().map(libro -> {
+                        BookDto bookDto = modelMapper.map(libro, BookDto.class);
+                        bookDto.setUserId(String.valueOf(libro.getUser().getId()));
+                
+                        bookDto.setAuthorName(libro.getAuthor().getName());
 
-                return todos.stream().map((libro) -> modelMapper.map(libro, BookDto.class))
-                                .collect(Collectors.toList());
+                
+                        return bookDto;
+        })
+                .collect(Collectors.toList());
         }
 
         @Override
@@ -148,23 +156,28 @@ public class BookServiceImpl implements BookService {
                 book.setPrice(price.equals("") ? book.getPrice() : price);
 
 
-                if (date.equals("")) {
+                if (!date.equals("")) {
                         logger.info("Entrando a date");
                         LocalDate fecha = transformToDate(date);
                         book.setPublicationDate(fecha);
                 }
 
+                if(!authorId.equals("")){
                 Author author = authorRepository.findById(authorId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Author no encontrado con id:"));
                 book.setAuthor(author);
+
+                }
+                
                 logger.info("en casi file");
                 if (file != null) {
                         updateImageBook(book, file);
                 }
-
+                logger.info("en categories da "+categories);
+                if(!categories.equals("[]")){
                 Set<Category> categoriesNombres = establishCategories(categories);
-
                 book.setCategories(categoriesNombres);
+                }
 
                 Book updatedTodo = bookRepository.save(book);
 
@@ -197,10 +210,21 @@ public class BookServiceImpl implements BookService {
 
         @Override
         public List<BookDto> getBookLimit() {
-                return bookRepository.findAll().stream()
-                                .limit(3)
-                                .map(book -> modelMapper.map(book, BookDto.class))
-                                .collect(Collectors.toList());
+                List<Book> books = bookRepository.findAll();
+                logger.info("Get all me da "+books);
+                return books.stream()
+                .limit(3)
+                .map(libro -> {
+                        BookDto bookDto = modelMapper.map(libro, BookDto.class);
+                        bookDto.setUserId(String.valueOf(libro.getUser().getId()));
+                
+                        bookDto.setAuthorName(libro.getAuthor().getName());
+
+                
+                        return bookDto;
+        })
+                .collect(Collectors.toList());
+
 
         }
 
@@ -236,8 +260,18 @@ public class BookServiceImpl implements BookService {
 
         @Override
         public List<BookDto> getBookIdUser(String idUser) {
-                return bookRepository.booksXIdUser(idUser).stream()
-                .map(book -> modelMapper.map(book, BookDto.class))
+
+                List<Book> books=bookRepository.booksXIdUser(idUser);
+                logger.info("El resultado de los books por id  me da : " + books);
+                return books.stream().map(libro -> {
+                        BookDto bookDto = modelMapper.map(libro, BookDto.class);
+                        bookDto.setUserId(String.valueOf(libro.getUser().getId()));
+                
+                        bookDto.setAuthorName(libro.getAuthor().getName());
+
+                
+                        return bookDto;
+        })
                 .collect(Collectors.toList());
         }
 

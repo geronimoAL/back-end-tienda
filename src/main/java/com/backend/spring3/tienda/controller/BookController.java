@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.spring3.tienda.dto.BookDto;
-
+import com.backend.spring3.tienda.entity.Book;
 import com.backend.spring3.tienda.service.BookService;
 import java.awt.image.BufferedImage;
 
@@ -88,6 +88,7 @@ public class BookController {
     @GetMapping("/user/{id}")
     public ResponseEntity<List<BookDto>> getBooksIdUser(@PathVariable("id") String id ) {
         List<BookDto> books = bookService.getBookIdUser(id);
+        logger.info("saliendo de book user con "+books);
         return ResponseEntity.ok(books);
     }
 
@@ -124,14 +125,14 @@ public class BookController {
 
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    //@PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/search/categoryBook/{id}")
     public ResponseEntity<List<BookDto>> getBooksXCategory(@PathVariable("id") String categoryId) {
         List<BookDto> books = bookService.searchBookXCategoryId(categoryId);
         return ResponseEntity.ok(books);
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    //@PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/search/name/{id}")
     public ResponseEntity<List<BookDto>> getBooksXNameBookOrEditorial(@PathVariable("id") String categoryId) {
         List<BookDto> books = bookService.searchBookXNameOrEditorial(categoryId);

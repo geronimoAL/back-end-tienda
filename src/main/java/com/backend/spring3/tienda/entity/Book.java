@@ -78,6 +78,14 @@ public class Book {
       inverseJoinColumns = @JoinColumn(name = "categoria_id"))
      private Set<Category> categories ;
 
+    // @Override
+    // public String toString() {
+    //   return "Book [id=" + id + ", title=" + title + ", editorial=" + editorial + ", description=" + description
+    //       + ", amount=" + amount + ", inStock=" + inStock + ", price=" + price + ", publicationDate=" + publicationDate
+    //       + ", imageUrl=" + imageUrl + ", cloudinaryId=" + cloudinaryId + "]";
+    // }
+    // <ListComponent books={books}/>
+
     
     
     
