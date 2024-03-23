@@ -8,11 +8,14 @@ import com.backend.spring3.tienda.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long>{
     
-    Optional<User> findByUsername(String username);
+    Optional<User> findByName(String username);
+
+    Optional<User> findByEmail(String email);
 
     Boolean existsByEmail(String email);
 
-    Optional<User> findByUsernameOrEmail(String username, String email);
+    // Optional<User> findByUsernameOrEmail(String username, String email);
 
-    Boolean existsByUsername(String username);
+    Boolean existsByName(String username);
+
 }

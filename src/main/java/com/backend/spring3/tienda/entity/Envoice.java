@@ -1,42 +1,44 @@
 package com.backend.spring3.tienda.entity;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.annotations.GenericGenerator;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Entity
-@Table(name = "categoria")
-@ToString
-public class Category {
-     @Id
+@Table(name = "envoice")
+public class Envoice {
+
+    @Id
     @GeneratedValue(generator = "system-uuid")
     @GenericGenerator(name = "system-uuid",strategy = "uuid")
     private String id;
 
-    @Column(nullable = false)
-    private String name;
+    private Integer number;
 
-    private String imageUrl;
-    private String cloudinaryId;
-   
+    private LocalDate publicationDate;
 
+    private Integer total;
+
+    @OneToMany(mappedBy = "envoice")
+	private List<EnvoiceDetail> detail;
+
+    @ManyToOne()
+    private User user;
+    
 }

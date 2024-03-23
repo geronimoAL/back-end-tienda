@@ -9,19 +9,23 @@ import com.backend.spring3.tienda.dto.BookDto;
 
 public interface BookService {
     
-    BookDto addBook(String title,String editorial, String description,String date,String amount, String price,String authorId, String categorias,MultipartFile file)throws IOException;
+    BookDto addBook(String emailUser,String title,String editorial, String description,String date,String amount, String price,String authorId, String categorias,MultipartFile file)throws IOException;
 
-    BookDto getTodo(String id);
+    BookDto getBook(String id);
 
-    List<BookDto> getAllTodos();
+    List<BookDto> getAllBooks();
 
-    BookDto updateTodo(BookDto libroDto, Long id,MultipartFile file)throws IOException;
+    BookDto updateBook(String id,MultipartFile file,String title,String editorial, String description,String date,String amount, String price,String authorId, String categorias)throws IOException;
 
-    void deleteTodo(Long id)throws IOException;
+    void deleteBook(String id)throws IOException;
 
     List<BookDto> searchBookXCategoryId(String idCategory);
 
     List<BookDto> searchBookXNameOrEditorial(String name);
 
+    List<BookDto> getBookLimit();
 
+    List<BookDto> getBookIdUser(String idUser);
+
+    
 }

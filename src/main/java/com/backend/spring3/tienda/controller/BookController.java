@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.spring3.tienda.dto.BookDto;
-
+import com.backend.spring3.tienda.entity.Book;
 import com.backend.spring3.tienda.service.BookService;
 import java.awt.image.BufferedImage;
 
@@ -42,11 +42,10 @@ public class BookController {
     private BookService bookService;
 
 
-    // Build Add Todo REST API
-
-    // @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PostMapping("/save")
     public ResponseEntity<BookDto> addTodo(
+            @RequestParam("emailUser") String emailUser,
             @RequestParam("title") String title,
             @RequestParam("editorial") String editorial,
             @RequestParam("description") String description,
@@ -64,67 +63,85 @@ public class BookController {
         
         logger.info("Entrando en libroContoller");
 
-        BookDto savedTodo = bookService.addBook(title,editorial,description,date,amount,price,authorId,categories,file);
+        BookDto savedTodo = bookService.addBook(emailUser,title,editorial,description,date,amount,price,authorId,categories,file);
 
 
         return new ResponseEntity<>(savedTodo ,HttpStatus.CREATED);
     }
 
-    // Build Get Todo REST API
+    
     // @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/{id}")
-    public ResponseEntity<BookDto> getTodo(@PathVariable("id") String todoId) {
-        BookDto libroDto = bookService.getTodo(todoId);
+    public ResponseEntity<BookDto> getBook(@PathVariable("id") String todoId) {
+        BookDto libroDto = bookService.getBook(todoId);
         return new ResponseEntity<>(libroDto, HttpStatus.OK);
     }
 
-    // Build Get All Todos REST API
     // @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    @GetMapping
-    public ResponseEntity<List<BookDto>> getAllTodos() {
-        List<BookDto> todos = bookService.getAllTodos();
-        // return new ResponseEntity<>(todos, HttpStatus.OK);
-        return ResponseEntity.ok(todos);
+    @GetMapping("/all")
+    public ResponseEntity<List<BookDto>> getAllBooks() {
+        List<BookDto> books = bookService.getAllBooks();
+        return ResponseEntity.ok(books);
     }
 
-    // Build Update Todo REST API
-    // @PreAuthorize("hasRole('ADMIN')")
+    // @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<BookDto>> getBooksIdUser(@PathVariable("id") String id ) {
+        List<BookDto> books = bookService.getBookIdUser(id);
+        logger.info("saliendo de book user con "+books);
+        return ResponseEntity.ok(books);
+    }
+
+    
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @PutMapping("{id}")
     public ResponseEntity<BookDto> updateTodo(
             @RequestParam("title") String title,
+            @RequestParam("editorial") String editorial,
             @RequestParam("description") String description,
-            @RequestParam("file") MultipartFile file,
-            @PathVariable("id") Long todoId) throws IOException {
+            @RequestParam("fecha") String date,
+            @RequestParam("unidades") String amount,
+            @RequestParam("precio") String price,
+            @RequestParam("author") String authorId,
+            @RequestParam("categorias") String categories,
+            @RequestParam(name = "file",required = false) MultipartFile file,
+            @PathVariable("id") String bookId) throws IOException {
 
-        BookDto libroDto = new BookDto();
-        libroDto.setTitle(title);
-        libroDto.setDescription(description);
-        // libroDto.setFecha(LocalDate.now());
+        logger.info("Entrando a updateBookController ");
 
-        BookDto updatedTodo = bookService.updateTodo(libroDto, todoId, file);
-        return ResponseEntity.ok(updatedTodo);
+        BookDto updatedBookDto = bookService.updateBook(bookId, file,title,editorial, description,date,amount, price,authorId,categories);
+      
+        return ResponseEntity.ok(updatedBookDto);
 
     }
 
-    // Build Delete Todo REST API
-    // @PreAuthorize("hasRole('ADMIN')")
+   
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteBook(@PathVariable("id") Long bookId) throws IOException {
-
-        bookService.deleteTodo(bookId);
-        return ResponseEntity.ok("Todo deleted successfully!.");
+    public ResponseEntity<String> deleteBook(@PathVariable("id") String bookId) throws IOException {
+        logger.info("Entrando a deleteBookController ");
+        bookService.deleteBook(bookId);
+        return ResponseEntity.ok("Libro eliminado con éxito!.");
 
     }
 
+    //@PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/search/categoryBook/{id}")
     public ResponseEntity<List<BookDto>> getBooksXCategory(@PathVariable("id") String categoryId) {
         List<BookDto> books = bookService.searchBookXCategoryId(categoryId);
         return ResponseEntity.ok(books);
     }
 
+    //@PreAuthorize("hasAnyRole('ADMIN','USER')")
     @GetMapping("/search/name/{id}")
     public ResponseEntity<List<BookDto>> getBooksXNameBookOrEditorial(@PathVariable("id") String categoryId) {
         List<BookDto> books = bookService.searchBookXNameOrEditorial(categoryId);
+        return ResponseEntity.ok(books);
+    }
+
+    @GetMapping("/limit")
+    public ResponseEntity<List<BookDto>> getAllBooksLimit() {
+        List<BookDto> books = bookService.getBookLimit();
         return ResponseEntity.ok(books);
     }
 

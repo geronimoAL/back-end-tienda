@@ -9,27 +9,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
-
 // import javax.imageio.ImageIO;
-
-import org.springframework.http.HttpStatus;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.Arrays;
 import com.backend.spring3.tienda.dto.CategoryDto;
 import com.backend.spring3.tienda.dto.BookDto;
 import com.backend.spring3.tienda.entity.Author;
 import com.backend.spring3.tienda.entity.Category;
+import com.backend.spring3.tienda.entity.User;
 import com.backend.spring3.tienda.entity.Book;
 import com.backend.spring3.tienda.exception.ResourceNotFoundException;
 import com.backend.spring3.tienda.repository.AuthorRepository;
 import com.backend.spring3.tienda.repository.CategoryRepository;
+import com.backend.spring3.tienda.repository.UserRepository;
 import com.backend.spring3.tienda.repository.BookRepository;
 import com.backend.spring3.tienda.service.CloudinaryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.backend.spring3.tienda.service.BookService;
 import org.slf4j.Logger;
@@ -57,50 +55,42 @@ public class BookServiceImpl implements BookService {
 
         private CloudinaryService cloudinaryService;
 
+        private UserRepository userRepository;
+
         @Transactional
         @Override
-        public BookDto addBook(String title, String editorial, String description,
-                        String date, String amount, String price, String authorId, String categorias,
-                        MultipartFile file)
-                        throws IOException {
+        public BookDto addBook(String idUser,String title, String editorial, String description,String date, String amount, String price, String authorId, String categories,MultipartFile file)throws IOException {
 
                 logger.info("Entrando en bookServiceImpl");
 
-                // Pasar el json de categorias a un set de la entidad categoria
-                CategoryDto[] categoriasArray = objectMapper.readValue(categorias, CategoryDto[].class);
+                User user=userRepository.findByEmail(idUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con "));
 
-                // Tambien podria obtener un array te category asi con el id y el nombre
-                // Set<Category> categoriasNombres = Arrays.stream(categoriasArray)
-                // .map(category -> new Category(category.getId().toString(),
-                // category.getName().toString()))
-                // .collect(Collectors.toSet());
+                Set<Category> categoriesNombres = establishCategories(categories);
 
-                Set<Category> categoriesNombres = Arrays.stream(categoriasArray)
-                                .map(category -> categoryRepository.findById(category.getId())
-                                                .orElseThrow(() -> new ResourceNotFoundException(
-                                                                "Category not found with id:" + category.getId())))
-                                .collect(Collectors.toSet());
-
-                DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                LocalDate fecha = LocalDate.parse(date, formato);
+                LocalDate fecha = transformToDate(date);
 
                 Map result = cloudinaryService.upload(file);
 
-                Book libro = new Book();
-                libro.setTitle(title);
-                libro.setEditorial(editorial);
-                libro.setDescription(description);
-                libro.setPrice(price);
-                libro.setAmount(Integer.parseInt(amount));
-                libro.setImageUrl((String) result.get("url"));
-                libro.setCloudinaryId((String) result.get("public_id"));
                 Author author = authorRepository.findById(authorId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Author not found with id:"));
-                ;
-                libro.setAuthor(author);
-                libro.setCategories(categoriesNombres);
-                libro.setPublicationDate(fecha);
-                Book savedTodo = bookRepository.save(libro);
+
+                Book book = Book.builder()
+                .title(title)
+                .editorial(editorial)
+                .description(description)
+                .price(price)
+                .amount(1)
+                .inStock(Integer.parseInt(amount))
+                .imageUrl((String) result.get("url"))
+                .cloudinaryId((String) result.get("public_id"))
+                .author(author)
+                .categories(categoriesNombres)
+                .publicationDate(fecha)
+                .user(user)
+                .build();
+               
+                Book savedTodo = bookRepository.save(book);
 
                 BookDto savedTodoDto = modelMapper.map(savedTodo, BookDto.class);
 
@@ -108,47 +98,89 @@ public class BookServiceImpl implements BookService {
         }
 
         @Override
-        public BookDto getTodo(String id) {
+        public BookDto getBook(String id) {
                 Book libro = bookRepository.findById(id)
-                                .orElseThrow(() -> new ResourceNotFoundException("Todo not found with id:" + id));
+                                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con id :" + id));
 
                 return modelMapper.map(libro, BookDto.class);
         }
 
         @Override
-        public List<BookDto> getAllTodos() {
-                List<Book> todos = bookRepository.findAll();
+        public List<BookDto> getAllBooks() {
+                List<Book> books = bookRepository.findAll();
+                logger.info("Get all me da "+books);
+                return books.stream().map(libro -> {
+                        BookDto bookDto = modelMapper.map(libro, BookDto.class);
+                        bookDto.setUserId(String.valueOf(libro.getUser().getId()));
+                
+                        bookDto.setAuthorName(libro.getAuthor().getName());
 
-                return todos.stream().map((libro) -> modelMapper.map(libro, BookDto.class))
-                                .collect(Collectors.toList());
+                
+                        return bookDto;
+        })
+                .collect(Collectors.toList());
         }
 
         @Override
-        public BookDto updateTodo(BookDto libroDto, Long id, MultipartFile file) throws IOException {
+        public BookDto updateBook(String id, MultipartFile file, String title, String editorial, String description,
+                        String date, String amount, String price, String authorId, String categories)
+                        throws IOException {
 
-                Book todo = bookRepository.findById(String.valueOf(id))
+                logger.info("Entrando en bookUpdateImpl");
+
+                Book book = bookRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "No se encontró el libro con id : " + id));
-                todo.setTitle(libroDto.getTitle());
-                todo.setDescription(libroDto.getDescription());
-                Map delete = cloudinaryService.delete(todo.getCloudinaryId());
-                logger.info("El resultado de borrar la imagen me da : " + delete);
-                Map upload = cloudinaryService.upload(file);
-                logger.info("El resultado de subir la imagen me da : " + upload);
-                todo.setImageUrl((String) upload.get("url"));
-                todo.setCloudinaryId((String) upload.get("public_id"));
-                Book updatedTodo = bookRepository.save(todo);
+
+                logger.info("con el book "+title);
+
+                book.setTitle(  title.equals("") ?  book.getTitle():title);
+
+                book.setDescription( description.equals("") ? book.getDescription():description);
+
+                book.setEditorial( editorial.equals("") ? book.getEditorial(): editorial);
+
+                book.setInStock(amount.equals("") ? book.getInStock() : Integer.parseInt(amount));
+
+                book.setPrice(price.equals("") ? book.getPrice() : price);
+
+
+                if (!date.equals("")) {
+                        logger.info("Entrando a date");
+                        LocalDate fecha = transformToDate(date);
+                        book.setPublicationDate(fecha);
+                }
+
+                if(!authorId.equals("")){
+                Author author = authorRepository.findById(authorId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Author no encontrado con id:"));
+                book.setAuthor(author);
+
+                }
+                
+                logger.info("en casi file");
+                if (file != null) {
+                        updateImageBook(book, file);
+                }
+                logger.info("en categories da "+categories);
+                if(!categories.equals("[]")){
+                Set<Category> categoriesNombres = establishCategories(categories);
+                book.setCategories(categoriesNombres);
+                }
+
+                Book updatedTodo = bookRepository.save(book);
 
                 return modelMapper.map(updatedTodo, BookDto.class);
         }
 
         @Override
-        public void deleteTodo(Long id) throws IOException {
-                Book todo = bookRepository.findById(String.valueOf(id))
-                                .orElseThrow(() -> new ResourceNotFoundException("Todo not found with id : " + id));
-                Map delete = cloudinaryService.delete(todo.getCloudinaryId());
+        public void deleteBook(String id) throws IOException {
+                Book bookSearch = bookRepository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Libro no encontrado con  : " + id));
+                logger.info("Entrando a delete book service impl ");
+                Map delete = cloudinaryService.delete(bookSearch.getCloudinaryId());
                 logger.info("El resultado de borrar el libro me da : " + delete);
-                bookRepository.deleteById(String.valueOf(id));
+                bookRepository.deleteById(id);
         }
 
         @Override
@@ -164,6 +196,78 @@ public class BookServiceImpl implements BookService {
                 return books.stream().map((book) -> modelMapper.map(book, BookDto.class))
                                 .collect(Collectors.toList());
         }
-        
+
+        @Override
+        public List<BookDto> getBookLimit() {
+                List<Book> books = bookRepository.findAll();
+                logger.info("Get all me da "+books);
+                return books.stream()
+                .limit(3)
+                .map(libro -> {
+                        BookDto bookDto = modelMapper.map(libro, BookDto.class);
+                        bookDto.setUserId(String.valueOf(libro.getUser().getId()));
+                
+                        bookDto.setAuthorName(libro.getAuthor().getName());
+
+                
+                        return bookDto;
+        })
+                .collect(Collectors.toList());
+
+
+        }
+
+        private void updateImageBook(Book book, MultipartFile file) throws IOException {
+                Map imageDelete = cloudinaryService.delete(book.getCloudinaryId());
+                logger.info("El resultado de borrar la imagen me da : " + imageDelete);
+                Map imageUpload = cloudinaryService.upload(file);
+                logger.info("El resultado de subir la imagen me da : " + imageUpload);
+                book.setImageUrl((String) imageUpload.get("url"));
+                book.setCloudinaryId((String) imageUpload.get("public_id"));
+        }
+
+        private Set<Category> establishCategories(String categorias)
+                        throws JsonMappingException, JsonProcessingException {
+
+                CategoryDto[] categoriasArray = objectMapper.readValue(categorias, CategoryDto[].class);
+
+                     // Tambien podria obtener un array te category asi con el id y el nombre
+                // Set<Category> categoriasNombres = Arrays.stream(categoriasArray)
+                // .map(category -> new Category(category.getId().toString(),
+                // category.getName().toString()))
+                // .collect(Collectors.toSet());
+
+                Set<Category> categoriesNombres = Arrays.stream(categoriasArray)
+                                .map(category -> categoryRepository.findById(category.getId())
+                                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                                "Category not found with id:" + category.getId())))
+                                .collect(Collectors.toSet());
+
+                return categoriesNombres;
+
+        }
+
+        private LocalDate transformToDate(String date) {
+                DateTimeFormatter formato = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate fecha = LocalDate.parse(date, formato);
+                return fecha;
+        }
+
+        @Override
+        public List<BookDto> getBookIdUser(String idUser) {
+
+                List<Book> books=bookRepository.booksXIdUser(idUser);
+                logger.info("El resultado de los books por id  me da : " + books);
+                return books.stream().map(libro -> {
+                        BookDto bookDto = modelMapper.map(libro, BookDto.class);
+                        bookDto.setUserId(String.valueOf(libro.getUser().getId()));
+                
+                        bookDto.setAuthorName(libro.getAuthor().getName());
+
+                
+                        return bookDto;
+        })
+                .collect(Collectors.toList());
+        }
 
 }

@@ -2,6 +2,9 @@ package com.backend.spring3.tienda.dto;
 
 
 
+import com.backend.spring3.tienda.entity.Book;
+import com.backend.spring3.tienda.entity.Envoice;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,9 +15,15 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDto {
-    
-    private String id;
+public class EnvoiceDetailDto {
+
     private String name;
-    private String imageUrl;
+
+    private Integer price;
+
+    private Integer amount;
+
+    private Integer total;
+
+    
 }

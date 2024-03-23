@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.backend.spring3.tienda.entity.Author;
 import com.backend.spring3.tienda.entity.Category;
+import com.backend.spring3.tienda.entity.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,9 +27,11 @@ public class BookDto {
     private String publicationDate;
     private String description;
     private Integer amount;
-    private String price;
+    private Integer inStock;
+    private Integer price;
     private String imageUrl;
-    private Author author;
+    private String authorName;
     private Set<Category> categories;
+    private String userId;
 }
 
